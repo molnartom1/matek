@@ -6,7 +6,7 @@
   <title>Bendegúz Matek Játéka</title>
   <meta name="theme-color" content="#4CAF50">
   <style>
-    /* --- EREDETI DESKTOP STÍLUS --- */
+    /* --- ALAP STÍLUS (DESKTOP) --- */
     body {
       font-family: Arial, sans-serif;
       background: url('https://picsum.photos/1200/800?blur=3') no-repeat center center fixed;
@@ -58,23 +58,35 @@
     .ok{ color: #1a7f37; font-size: 20px; }
     .bad{ color: #d1242f; font-size: 20px; }
 
-    /* --- MOBIL BARÁT KIEGÉSZÍTÉSEK (csak kis kijelzőn) --- */
+    /* --- MOBIL STÍLUS --- */
     @media (max-width: 767px){
-      h1{ font-size: 1.3em; }
-      .question{ font-size: 20px; }
-      input, select, button{ width: 100%; max-width: none; }
-      #progressBarContainer{ width: 100%; }
-      /* Táblázatok görgethetők, nem törik szét az oldal */
+      body {
+        background: #fff; /* nincs háttérkép mobilon */
+        display: block;
+        padding: 5px;
+      }
+      .container {
+        box-shadow: none;
+        border-radius: 0;
+        background: #fff;
+        padding: 5px;
+      }
+      h1 { font-size: 1.3em; margin: 6px 0; }
+      .question { font-size: 20px; }
+      input, select, button { width: 100%; max-width: none; font-size: 16px; }
+      #progressBarContainer { width: 100%; }
+      .multiplication, .conversion {
+        margin: 10px 0;
+        box-shadow: none;
+        background: #f9f9f9;
+      }
+      /* Táblázatok görgethetőek vízszintesen */
       .multiplication table,
-      #summary table{
+      #summary table {
         display: block;
         overflow-x: auto;
         white-space: nowrap;
         border: none;
-      }
-      .multiplication th, .multiplication td,
-      #summary th, #summary td{
-        border: 1px solid #e0e0e0;
       }
     }
   </style>
@@ -238,11 +250,10 @@ function newQuestion(){
   let a,b,displayA,displayB;
 
   if(op==="/"){
-    // Egész osztás: (a*b) ÷ a = b
-    a = Math.floor(Math.random()*max)+1;   // osztó
-    b = Math.floor(Math.random()*max)+1;   // hányados
-    displayA = a*b;                        // osztandó
-    displayB = a;                          // osztó
+    a = Math.floor(Math.random()*max)+1;
+    b = Math.floor(Math.random()*max)+1;
+    displayA = a*b;
+    displayB = a;
     correctAnswer = b;
   } else {
     a = Math.floor(Math.random()*max)+1;
