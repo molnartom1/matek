@@ -6,38 +6,56 @@
   <title>Bendegúz Matek Játéka</title>
   <meta name="theme-color" content="#4CAF50">
   <style>
-    /* --- ALAP STÍLUS (DESKTOP) --- */
+    /* --- ALAP (DESKTOP) STÍLUS --- */
     body {
       font-family: Arial, sans-serif;
       background: url('https://picsum.photos/1200/800?blur=3') no-repeat center center fixed;
       background-size: cover;
       display: flex;
       justify-content: center;
-      padding: 10px;
+      align-items: center;
+      min-height: 100vh;
       margin: 0;
-      overflow-x: hidden;
     }
     .container {
       display: flex;
       flex-direction: column;
-      max-width: 95%;
-      width: 100%;
+      max-width: 1200px;
+      width: 90%;
       background: rgba(255,255,255,0.9);
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       padding: 15px;
+      gap: 20px;
     }
-    @media (min-width: 768px){
-      .container{ flex-direction: row; }
+    @media (min-width: 900px){
+      .container{ flex-direction: row; align-items: flex-start; }
     }
-    .game{ flex: 2; text-align: center; padding: 10px; }
+
+    /* Bal oldal (játék) – nagyobb */
+    .game{
+      flex: 3;
+      text-align: center;
+      padding: 10px;
+    }
+
+    /* Jobb oldal (szorzótábla + átváltás) – kisebb, egymás alatt */
+    .sidebar{
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
     .multiplication,.conversion{
-      flex:1; background:#fff; padding:10px; margin-top:15px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.15);
+      background:#fff;
+      padding:10px;
+      border-radius:8px;
+      box-shadow:0 0 10px rgba(0,0,0,0.15);
     }
-    @media (min-width: 768px){
-      .multiplication,.conversion{ margin-top:0; margin-left:20px; }
-    }
+
     h1{ color:#222; text-shadow:1px 1px 2px #fff; font-size:1.6em; margin: 8px 0; }
+    h2{ margin: 6px 0 10px; font-size: 1.1em; }
     .row { display:flex; gap:8px; justify-content:center; align-items:center; flex-wrap:wrap; margin:6px 0; }
     .question{ font-size:22px; margin:15px 0; font-weight:bold; color:#333; }
     #emoji { font-size:40px; animation:bounce 1s infinite; }
@@ -58,20 +76,54 @@
     .ok{ color: #1a7f37; font-size: 20px; }
     .bad{ color: #d1242f; font-size: 20px; }
 
+    /* --- Űrmérték átváltás: soronként, egymás alatt --- */
+    .conv-field{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 8px 0;
+    }
+    .conv-field label{
+      flex: 0 0 auto;
+      font-size: 15px;
+      color: #333;
+    }
+    .conv-field .conv-input-wrap{
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      justify-content: flex-end;
+    }
+    .conv-field input{
+      width: 120px;
+      max-width: 100%;
+      margin: 0;
+    }
+    .conv-field .unit{
+      min-width: 1.5em;
+      text-align: left;
+      color:#555;
+    }
+
     /* --- MOBIL STÍLUS --- */
     @media (max-width: 767px){
       body {
         background: #fff; /* nincs háttérkép mobilon */
         display: block;
-        padding: 5px;
+        min-height: auto;
       }
       .container {
         box-shadow: none;
         border-radius: 0;
         background: #fff;
         padding: 5px;
+        width: 100%;
+        max-width: none;
+        gap: 12px;
       }
-      h1 { font-size: 1.3em; margin: 6px 0; }
+      h1 { font-size: 1.3em; margin: 4px 0; }
       .question { font-size: 20px; }
       input, select, button { width: 100%; max-width: none; font-size: 16px; }
       #progressBarContainer { width: 100%; }
@@ -80,13 +132,23 @@
         box-shadow: none;
         background: #f9f9f9;
       }
-      /* Táblázatok görgethetőek vízszintesen */
+      /* Táblázatok vízszintesen görgethetők */
       .multiplication table,
       #summary table {
         display: block;
         overflow-x: auto;
         white-space: nowrap;
         border: none;
+      }
+      /* Űrmérték mezők mobilon is egymás alatt, balra cím, jobbra input */
+      .conv-field{
+        gap:10px;
+      }
+      .conv-field input{
+        width: 100%;
+      }
+      .conv-field .conv-input-wrap{
+        justify-content: flex-start;
       }
     }
   </style>
@@ -146,21 +208,46 @@
       <div id="highScore"></div>
     </div>
 
-    <div class="multiplication">
-      <h2>📖 Szorzótábla</h2>
-      <table id="table"></table>
-    </div>
+    <div class="sidebar">
+      <div class="multiplication">
+        <h2>📖 Szorzótábla</h2>
+        <table id="table"></table>
+      </div>
 
-    <div class="conversion">
-      <h2>📐 Űrmérték átváltás</h2>
-      <input type="number" id="liters" placeholder="Liter" oninput="convertVolume('liters')"> L
-      <input type="number" id="milliliters" placeholder="Milliliter" oninput="convertVolume('milliliters')"> ml
-      <input type="number" id="deciliters" placeholder="Deciliter" oninput="convertVolume('deciliters')"> dl
+      <div class="conversion">
+        <h2>📐 Űrmérték átváltás</h2>
+
+        <!-- EGYES MEZŐK EGYMÁS ALATT -->
+        <div class="conv-field">
+          <label for="liters">Liter</label>
+          <div class="conv-input-wrap">
+            <input type="number" id="liters" placeholder="Liter" oninput="convertVolume('liters')">
+            <span class="unit">L</span>
+          </div>
+        </div>
+
+        <div class="conv-field">
+          <label for="milliliters">Milliliter</label>
+          <div class="conv-input-wrap">
+            <input type="number" id="milliliters" placeholder="Milliliter" oninput="convertVolume('milliliters')">
+            <span class="unit">ml</span>
+          </div>
+        </div>
+
+        <div class="conv-field">
+          <label for="deciliters">Deciliter</label>
+          <div class="conv-input-wrap">
+            <input type="number" id="deciliters" placeholder="Deciliter" oninput="convertVolume('deciliters')">
+            <span class="unit">dl</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 <script>
+/* Működés: változatlan */
 let correctAnswer=0,timeLimit=0,timerInterval,questionIndex=0,score=0,answers=[],currentQuestion=null,totalQuestions=10,playerName="Játékos";
 
 function toggleCustomCount(){
@@ -252,9 +339,7 @@ function newQuestion(){
   if(op==="/"){
     a = Math.floor(Math.random()*max)+1;
     b = Math.floor(Math.random()*max)+1;
-    displayA = a*b;
-    displayB = a;
-    correctAnswer = b;
+    displayA = a*b; displayB = a; correctAnswer = b;
   } else {
     a = Math.floor(Math.random()*max)+1;
     b = Math.floor(Math.random()*max)+1;
