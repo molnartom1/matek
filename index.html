@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bendegúz Matek Játéka</title>
+  <meta name="theme-color" content="#4CAF50">
+  <style>
+    body {font-family:Arial, sans-serif;background:url('https://picsum.photos/1200/800?blur=3') no-repeat center center fixed;background-size:cover;display:flex;justify-content:center;padding:10px;margin:0;overflow-x:hidden;}
+    .container {display:flex;flex-direction:column;max-width:95%;width:100%;background:rgba(255,255,255,0.9);border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.2);padding:15px;}
+    @media(min-width:768px){.container{flex-direction:row;}}
+    .game{flex:2;text-align:center;padding:10px;}
+    .multiplication,.conversion{flex:1;background:#fff;padding:10px;margin-top:15px;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,0.15);}
+    @media(min-width:768px){.multiplication,.conversion{margin-top:0;margin-left:20px;}}
+    h1{color:#222;text-shadow:1px 1px 2px #fff;font-size:1.6em;}
+    .question{font-size:22px;margin:15px 0;font-weight:bold;color:#333;}
+    #emoji {font-size:40px;animation:bounce 1s infinite;}
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    input,select{font-size:18px;padding:6px;text-align:center;margin:5px;border-radius:6px;border:1px solid #ccc;width:80%;max-width:200px;}
+    button{font-size:18px;padding:10px;margin:5px;border:none;border-radius:8px;cursor:pointer;transition:0.3s;width:80%;max-width:250px;}
+    button:hover{transform:scale(1.05);}
+    #startBtn{background-color:#4CAF50;color:white;}
+    #answerBtn{background-color:#2196F3;color:white;}
+    #timer{font-size:18px;margin:10px;color:#444;}
+    #result{font-size:20px;margin-top:10px;font-weight:bold;}
+    #progressBarContainer{width:80%;background:#ddd;border-radius:10px;margin:10px auto;height:20px;}
+    #progressBar{height:20px;background:#4CAF50;width:100%;border-radius:10px;}
+    table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px;}
+    th,td{padding:4px;text-align:center;border:1px solid #bbb;}
+    th{background-color:#f7f7f7;}
+  </style>
+</head>
+<body>
+  <canvas id="confettiCanvas"></canvas>
+  <div class="container">
+    <div class="game">
+      <h1>🎯 Bendegúz Matek Játéka 🎯</h1>
+
+      <div>
+        <label for="difficulty">Nehézség:</label>
+        <select id="difficulty">
+          <option value="easy">Könnyű</option>
+          <option value="medium">Közepes</option>
+          <option value="hard">Nehéz</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="operation">Válaszd ki a műveletet:</label>
+        <select id="operation">
+          <option value="mix">Összes vegyesen</option>
+          <option value="+">Összeadás</option>
+          <option value="-">Kivonás</option>
+          <option value="*">Szorzás</option>
+        </select>
+      </div>
+
+      <div class="question" id="question">Nyomd meg a START gombot!</div>
+      <div id="emoji"></div>
+      <input type="number" id="answer" placeholder="Válasz">
+      <br>
+      <div id="progressBarContainer"><div id="progressBar"></div></div>
+      <button id="startBtn" onclick="startGame()">🚀 START</button>
+      <button id="answerBtn" onclick="checkAnswer()">✅ Válasz elküldése</button>
+      <div id="timer"></div>
+      <div id="result"></div>
+      <div id="summary"></div>
+      <div id="badge"></div>
+      <div id="highScore"></div>
+    </div>
+
+    <div class="multiplication">
+      <h2>📖 Szorzótábla</h2>
+      <table id="table"></table>
+    </div>
+
+    <div class="conversion">
+      <h2>📐 Űrmérték átváltás</h2>
+      <input type="number" id="liters" placeholder="Liter" oninput="convertVolume('liters')"> L
+      <input type="number" id="milliliters" placeholder="Milliliter" oninput="convertVolume('milliliters')"> ml
+      <input type="number" id="deciliters" placeholder="Deciliter" oninput="convertVolume('deciliters')"> dl
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+<script>
+let correctAnswer=0,timeLimit=0,timerInterval,questionCount=0,score=10,answers=[];
+
+function playSound(correct){
+  const url = correct ? "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" : "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg";
+  new Audio(url).play();
+}
+
+function showConfetti(){
+  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+}
+
+function updateProgress(){
+  document.getElementById("progressBar").style.width=(score*10)+"%";
+}
+
+function updateHighScore(){
+  let best=localStorage.getItem("highScore")||0;
+  if(score>best){
+    best=score;
+    localStorage.setItem("highScore",best);
+  }
+  document.getElementById("highScore").textContent="🏅 Legjobb pontszám: "+best+"/10";
+}
+
+function createTable(){let html="<tr><th>x</th>";for(let j=1;j<=10;j++)html+=`<th>${j}</th>`;html+="</tr>";for(let i=1;i<=10;i++){html+=`<tr><th>${i}</th>`;for(let j=1;j<=10;j++)html+=`<td>${i}×${j}=${i*j}</td>`;html+="</tr>";}document.getElementById("table").innerHTML=html;}
+
+function convertVolume(c){let l=parseFloat(document.getElementById("liters").value)||0,ml=parseFloat(document.getElementById("milliliters").value)||0,dl=parseFloat(document.getElementById("deciliters").value)||0;if(c==="liters"){document.getElementById("milliliters").value=l*1000;document.getElementById("deciliters").value=l*10;}else if(c==="milliliters"){document.getElementById("liters").value=ml/1000;document.getElementById("deciliters").value=ml/100;}else if(c==="deciliters"){document.getElementById("liters").value=dl/10;document.getElementById("milliliters").value=dl*100;}}
+
+function startGame(){questionCount=0;score=10;answers=[];document.getElementById("summary").innerHTML="";document.getElementById("badge").innerHTML="";document.getElementById("emoji").textContent="";updateProgress();updateHighScore();newQuestion();}
+
+function newQuestion(){if(questionCount>=10){endGame();return;}
+  const selectedOp=document.getElementById("operation").value;
+  let op=selectedOp==="mix"?["+","-","*"][Math.floor(Math.random()*3)]:selectedOp;
+
+  const difficulty=document.getElementById("difficulty").value;
+  let max=10;
+  if(difficulty==="medium") max=20;
+  if(difficulty==="hard") max=50;
+
+  let a=Math.floor(Math.random()*max)+1,b=Math.floor(Math.random()*max)+1;
+  if(op==="-")while(b>a)b=Math.floor(Math.random()*max)+1;
+
+  correctAnswer=op==="+"?a+b:op==="-"?a-b:a*b;
+
+  document.getElementById("question").textContent=`Mennyi ${a} ${op} ${b}?`;
+  document.getElementById("result").textContent="";
+  document.getElementById("answer").value="";
+  timeLimit=Math.floor(Math.random()*31)+30;
+  startTimer();
+  questionCount++;
+  currentQuestion={a,b,op,correct:correctAnswer};
+}
+
+function startTimer(){clearInterval(timerInterval);timerInterval=setInterval(()=>{document.getElementById("timer").textContent=`Hátralévő idő: ${timeLimit} mp`;if(timeLimit<=0){clearInterval(timerInterval);answers.push({...currentQuestion,user:"-"});score--;updateProgress();setTimeout(newQuestion,1000);}timeLimit--;},1000);}
+
+function checkAnswer(){const valasz=parseInt(document.getElementById("answer").value);if(isNaN(valasz)){document.getElementById("result").textContent="Írj be egy számot!";return;}
+  if(valasz===correctAnswer){
+    const praises=["Ügyes vagy, Bendegúz!","Nagyon szép munka!","Zseniális volt!","Szuper ügyes vagy!","Ez fantasztikus volt!","Csillagos ötös!"];
+    document.getElementById("result").textContent=praises[Math.floor(Math.random()*praises.length)];
+    document.getElementById("emoji").textContent="✅";
+    playSound(true);
+    showConfetti();
+  }else{
+    const fails=["Ez most nem sikerült","Próbáld újra!","Nem baj, menni fog legközelebb!"];
+    document.getElementById("result").textContent=fails[Math.floor(Math.random()*fails.length)];
+    document.getElementById("emoji").textContent="😢";
+    playSound(false);
+    score--;
+  }
+  updateProgress();
+  clearInterval(timerInterval);
+  answers.push({...currentQuestion,user:valasz});
+  setTimeout(newQuestion,1500);
+}
+
+function endGame(){let html=`<h2>🎉 Játék vége! 🎉</h2><p><strong>Pontszámod:</strong> ${score}/10</p>`;if(score===10)document.getElementById("badge").innerHTML="🏆 Matek bajnok!";updateHighScore();html+="<table><tr><th>Feladat</th><th>Helyes válasz</th><th>Te válaszod</th></tr>";answers.forEach(q=>{html+=`<tr><td>${q.a} ${q.op} ${q.b}</td><td>${q.correct}</td><td>${q.user}</td></tr>`});html+="</table>";document.getElementById("summary").innerHTML=html;document.getElementById("question").textContent="Játék vége!";}
+
+createTable();
+updateHighScore();
+</script>
+</body>
+</html>
