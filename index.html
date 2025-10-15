@@ -252,7 +252,9 @@ function playSound(correct){
 }
 
 function showConfetti(){
-  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+  if (typeof confetti === 'function') {
+    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+  }
 }
 
 function updateProgress(){
@@ -391,7 +393,8 @@ function endGame(){
 // PWA: regisztráció
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW reg error:', err));
+    navigator.serviceWorker.register('./sw.js', {scope: './'})
+      .catch(err => console.log('SW reg error:', err));
   });
 }
 
