@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Bendegúz Matek Játéka</title>
   <meta name="theme-color" content="#4CAF50">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <style>
     *, *::before, *::after { box-sizing: border-box; }
 
@@ -244,7 +248,7 @@ function toggleCustomCount(){
 
 function playSound(correct){
   const url = correct ? "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" : "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg";
-  new Audio(url).play();
+  try { new Audio(url).play().catch(()=>{}); } catch(_) {}
 }
 
 function showConfetti(){
@@ -382,6 +386,13 @@ function endGame(){
   html+="</table>";
   document.getElementById("summary").innerHTML=html;
   document.getElementById("question").textContent="Játék vége!";
+}
+
+// PWA: regisztráció
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW reg error:', err));
+  });
 }
 
 createTable();
