@@ -1,79 +1,101 @@
-// sw.js — robust offline handler
-const CACHE_VERSION = 'v1.0.1';
-const APP_SHELL = [
-  'index.html',
+// sw.js — iOS-friendly (no redirect caching)
+const CACHE_VERSION = 'v1.0.2';
+const ASSETS = [
   'manifest.json',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/maskable-192.png',
   'icons/maskable-512.png'
 ];
+const INDEX_URL = 'index.html';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL))
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_VERSION);
+    // 1) Cache a clean, non-redirected copy of index.html
+    try {
+      const res = await fetch(INDEX_URL, { cache: 'reload', redirect: 'follow' });
+      if (res.ok && !res.redirected) {
+        await cache.put(INDEX_URL, res.clone());
+      } else {
+        // If browser marks it as redirected, clone body to force a fresh 200 in cache
+        const text = await res.text();
+        await cache.put(INDEX_URL, new Response(text, { headers: { 'Content-Type': 'text/html' } }));
+      }
+    } catch (e) {
+      // no network at install — cache will be filled later
+    }
+    // 2) Cache static assets (icons, manifest)
+    await cache.addAll(ASSETS);
+  })());
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.map((k) => (k !== CACHE_VERSION ? caches.delete(k) : null)))
-    )
-  );
+  event.waitUntil((async () => {
+    for (const key of await caches.keys()) {
+      if (key !== CACHE_VERSION) await caches.delete(key);
+    }
+  })());
   self.clients.claim();
 });
 
-// Helper: cache-first for same-origin GET
+// Cache-first for same-origin GET (except index.html which we manage explicitly)
 async function cacheFirst(req) {
   const cache = await caches.open(CACHE_VERSION);
-  const cached = await cache.match(req);
-  if (cached) return cached;
-  const fresh = await fetch(req);
-  if (req.method === 'GET' && new URL(req.url).origin === self.location.origin) {
-    cache.put(req, fresh.clone());
+  const hit = await cache.match(req);
+  if (hit) return hit;
+  const res = await fetch(req);
+  if (req.method === 'GET' && new URL(req.url).origin === self.location.origin && !req.url.endsWith(INDEX_URL)) {
+    cache.put(req, res.clone());
   }
-  return fresh;
+  return res;
 }
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
+  const url = new URL(req.url);
 
-  // Navigate requests: try network, fall back to cached index.html
+  // Navigation requests: try network, fallback to cached index.html (never cache redirected nav responses)
   if (req.mode === 'navigate') {
     event.respondWith((async () => {
       const cache = await caches.open(CACHE_VERSION);
       try {
-        const fresh = await fetch(req);
-        // keep cached index fresh when online
-        try {
-          const ireq = new Request('index.html', {cache: 'reload'});
-          const ires = await fetch(ireq);
-          cache.put('index.html', ires.clone());
-        } catch(e) {}
-        return fresh;
+        const netRes = await fetch(req);
+        // Do not put navigation responses in cache (may be redirect on some servers)
+        return netRes;
       } catch (e) {
-        const cachedIndex = await cache.match('index.html');
-        return cachedIndex || new Response('<h1>Offline</h1>', {headers:{'Content-Type':'text/html'}});
+        const cached = await cache.match(INDEX_URL);
+        return cached || new Response('<h1>Offline</h1>', { headers: { 'Content-Type': 'text/html' } });
       }
     })());
     return;
   }
 
-  // Same-origin assets -> cache-first
-  if (new URL(req.url).origin === self.location.origin && req.method === 'GET') {
+  // Same-origin GET (non-navigation)
+  if (url.origin === self.location.origin && req.method === 'GET') {
+    if (url.pathname.endsWith(INDEX_URL)) {
+      // Serve cached index when requested directly
+      event.respondWith((async () => {
+        const cache = await caches.open(CACHE_VERSION);
+        const cached = await cache.match(INDEX_URL);
+        if (cached) return cached;
+        try {
+          const fresh = await fetch(INDEX_URL, { cache: 'reload' });
+          if (fresh.ok) cache.put(INDEX_URL, fresh.clone());
+          return fresh;
+        } catch (e) {
+          return new Response('<h1>Offline</h1>', { headers: { 'Content-Type': 'text/html' } });
+        }
+      })());
+      return;
+    }
     event.respondWith(cacheFirst(req));
     return;
   }
 
-  // Cross-origin: network-first, no throw if offline
+  // Cross-origin: network-first with quiet offline fallback
   event.respondWith((async () => {
-    try {
-      return await fetch(req);
-    } catch (e) {
-      // give up quietly offline
-      return new Response('', {status: 204});
-    }
+    try { return await fetch(req); } catch (e) { return new Response('', { status: 204 }); }
   })());
 });
