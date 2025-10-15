@@ -37,31 +37,12 @@
     }
 
     @media (min-width: 900px) {
-      .container {
-        flex-direction: row;
-        align-items: flex-start;
-      }
+      .container { flex-direction: row; align-items: flex-start; }
     }
 
-    .game {
-      flex: 3;
-      text-align: center;
-      padding: 10px;
-    }
-
-    .sidebar {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .multiplication, .conversion {
-      background: #fff;
-      padding: 10px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.15);
-    }
+    .game { flex: 3; text-align: center; padding: 10px; }
+    .sidebar{ flex: 1; display: flex; flex-direction: column; gap: 15px; }
+    .multiplication, .conversion{ background:#fff; padding:10px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.15); }
 
     h1 { color: #222; text-shadow: 1px 1px 2px #fff; font-size: 1.6em; margin: 8px 0; }
     h2 { margin: 6px 0 10px; font-size: 1.1em; }
@@ -69,81 +50,53 @@
     .question { font-size: 22px; margin: 15px 0; font-weight: bold; color: #333; }
     #emoji { font-size: 40px; animation: bounce 1s infinite; }
     @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
-    input, select {
-      font-size: 18px; padding: 6px; text-align: center; margin: 5px;
-      border-radius: 6px; border: 1px solid #ccc; width: 80%; max-width: 240px;
-    }
-    button {
-      font-size: 18px; padding: 10px; margin: 5px; border: none; border-radius: 8px;
-      cursor: pointer; transition: 0.3s; width: 80%; max-width: 250px;
-    }
+    input, select { font-size: 18px; padding: 6px; text-align: center; margin: 5px; border-radius: 6px; border: 1px solid #ccc; width: 80%; max-width: 240px; }
+    button { font-size: 18px; padding: 10px; margin: 5px; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; width: 80%; max-width: 250px; }
     button:hover { transform: scale(1.05); }
-    #startBtn { background-color: #4CAF50; color: white; }
-    #answerBtn { background-color: #2196F3; color: white; }
-    #timer { font-size: 18px; margin: 10px; color: #444; }
-    #result { font-size: 20px; margin-top: 10px; font-weight: bold; }
-    #progressBarContainer { width: 80%; background: #ddd; border-radius: 10px; margin: 10px auto; height: 20px; overflow: hidden; }
-    #progressBar { height: 20px; background: #4CAF50; width: 0%; border-radius: 10px; transition: width .2s ease; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
-    th, td { padding: 4px; text-align: center; border: 1px solid #bbb; }
-    th { background-color: #f7f7f7; }
-    .hidden { display: none; }
-    .ok { color: #1a7f37; font-size: 20px; }
-    .bad { color: #d1242f; font-size: 20px; }
+    #startBtn{ background-color:#4CAF50; color:white; }
+    #answerBtn{ background-color:#2196F3; color:white; }
+    #timer{ font-size: 18px; margin: 10px; color: #444; }
+    #result{ font-size: 20px; margin-top: 10px; font-weight: bold; }
+    #progressBarContainer{ width:80%; background:#ddd; border-radius:10px; margin:10px auto; height:20px; overflow:hidden; }
+    #progressBar{ height:20px; background:#4CAF50; width:0%; border-radius:10px; transition: width .2s ease; }
+    table{ width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; }
+    th,td{ padding:4px; text-align:center; border:1px solid #bbb; }
+    th{ background-color:#f7f7f7; }
+    .hidden{ display:none; }
+    .ok{ color:#1a7f37; font-size:20px; }
+    .bad{ color:#d1242f; font-size:20px; }
 
-    .conv-field {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 8px; margin: 8px 0;
-    }
-    .conv-field label { flex: 0 0 auto; font-size: 15px; color: #333; }
-    .conv-field .conv-input-wrap {
-      display: flex; align-items: center; gap: 6px; flex: 1; justify-content: flex-end;
-    }
-    .conv-field input { width: 120px; max-width: 100%; margin: 0; }
-    .conv-field .unit { min-width: 1.5em; text-align: left; color: #555; }
+    .conv-field{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin:8px 0; }
+    .conv-field label{ flex:0 0 auto; font-size:15px; color:#333; }
+    .conv-field .conv-input-wrap{ display:flex; align-items:center; gap:6px; flex:1; justify-content:flex-end; }
+    .conv-field input{ width:120px; max-width:100%; margin:0; }
+    .conv-field .unit{ min-width:1.5em; text-align:left; color:#555; }
 
-    #confettiCanvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    #confettiCanvas{ position:fixed; inset:0; width:100%; height:100%; pointer-events:none; }
 
-    /* --- MOBIL --- */
+    /* Mobil */
     @media (max-width: 767px) {
-      body { background: #fff; display: block; overflow-x: hidden; }
-      .container { box-shadow: none; border-radius: 0; background: #fff; padding: 8px; width: 100%; gap: 12px; }
-      h1 { font-size: 1.3em; margin: 0 0 6px 0; }
-      .question { font-size: 20px; }
-      input, select, button { width: 100%; max-width: none; font-size: 16px; }
-      #progressBarContainer { width: 100%; margin: 10px 0; }
-      .multiplication table, #summary table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-      .conv-field { gap: 10px; }
-      .conv-field input { width: 100%; }
-      .conv-field .conv-input-wrap { justify-content: flex-start; }
+      body { background:#fff; display:block; overflow-x:hidden; }
+      .container { box-shadow:none; border-radius:0; background:#fff; padding:8px; width:100%; gap:12px; }
+      h1 { font-size:1.3em; margin:0 0 6px 0; }
+      .question { font-size:20px; }
+      input, select, button { width:100%; max-width:none; font-size:16px; }
+      #progressBarContainer { width:100%; margin:10px 0; }
+      .multiplication table, #summary table { display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+      .conv-field { gap:10px; }
+      .conv-field input { width:100%; }
+      .conv-field .conv-input-wrap { justify-content:flex-start; }
     }
 
-    /* --- TABLET (iPad) --- */
-    @media (min-width: 768px) and (max-width: 1024px) {
-      body {
-        background: #fff;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        padding: 20px;
-      }
-      .container {
-        flex-direction: column;
-        width: 95%;
-        max-width: 900px;
-        box-shadow: 0 0 12px rgba(0,0,0,0.15);
-        border-radius: 10px;
-        padding: 20px;
-        background: #fafafa;
-      }
-      h1 { font-size: 1.5em; margin: 5px 0 10px 0; }
-      .question { font-size: 22px; }
-      input, select, button { font-size: 17px; width: 100%; max-width: 350px; }
-      .multiplication, .conversion {
-        width: 100%;
-        margin: 0 auto;
-      }
-      .conversion input { width: 140px; }
+    /* Tablet (iPad) */
+    @media (min-width:768px) and (max-width:1024px) {
+      body { background:#fff; display:flex; justify-content:center; align-items:flex-start; padding:20px; }
+      .container { flex-direction:column; width:95%; max-width:900px; box-shadow:0 0 12px rgba(0,0,0,0.15); border-radius:10px; padding:20px; background:#fafafa; }
+      h1 { font-size:1.5em; margin:5px 0 10px 0; }
+      .question { font-size:22px; }
+      input, select, button { font-size:17px; width:100%; max-width:350px; }
+      .multiplication, .conversion { width:100%; margin:0 auto; }
+      .conversion input { width:140px; }
     }
   </style>
 </head>
@@ -169,12 +122,28 @@
 
       <div class="row">
         <label for="operation">Művelet:</label>
-        <select id="operation">
+        <select id="operation" onchange="toggleMulControls()">
           <option value="mix">Összes vegyesen</option>
           <option value="+">Összeadás</option>
           <option value="-">Kivonás</option>
           <option value="*">Szorzás</option>
           <option value="/">Osztás</option>
+        </select>
+      </div>
+
+      <!-- ÚJ: Szorzótábla mód -->
+      <div class="row" id="mulControls">
+        <label for="mulMode">Szorzótábla mód:</label>
+        <select id="mulMode" onchange="toggleMulControls()">
+          <option value="random">Random</option>
+          <option value="fixed">Kiválasztott</option>
+        </select>
+
+        <label for="mulTable">Tábla:</label>
+        <select id="mulTable">
+          <!-- 1–12-ig; ha szeretnéd, emelhetem 20-ig -->
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
+          <option>7</option><option>8</option><option>9</option><option selected>10</option><option>11</option><option>12</option>
         </select>
       </div>
 
@@ -242,9 +211,22 @@ let correctAnswer=0,timeLimit=0,timerInterval,questionIndex=0,score=0,answers=[]
 function toggleCustomCount(){
   const sel=document.getElementById("questionSet").value;
   const input=document.getElementById("customCount");
-  if(sel==="custom"){ input.classList.remove("hidden"); }
-  else { input.classList.add("hidden"); }
+  if(sel==="custom"){ input.classList.remove("hidden"); } else { input.classList.add("hidden"); }
 }
+
+// ÚJ: a szorzótábla vezérlők engedélyezése/tiltása
+function toggleMulControls(){
+  const op = document.getElementById("operation").value;
+  const mulControls = document.getElementById("mulControls");
+  const mulMode = document.getElementById("mulMode");
+  const mulTable = document.getElementById("mulTable");
+  const isMul = (op === "*");
+  mulControls.style.opacity = isMul ? "1" : "0.5";
+  mulControls.style.pointerEvents = isMul ? "auto" : "none";
+  mulMode.disabled = !isMul;
+  mulTable.disabled = !isMul || (mulMode.value !== "fixed");
+}
+toggleMulControls();
 
 function playSound(correct){
   const url = correct ? "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" : "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg";
@@ -294,6 +276,7 @@ function convertVolume(c){
 function startGame(){
   const nameInput = (document.getElementById("playerName").value || "").trim();
   playerName = nameInput.length ? nameInput : "Játékos";
+
   const setVal = document.getElementById("questionSet").value;
   totalQuestions = (setVal==="custom")
       ? Math.max(1, Math.min(100, parseInt(document.getElementById("customCount").value)||10))
@@ -318,15 +301,37 @@ function newQuestion(){
   let max=10; if(difficulty==="medium") max=20; if(difficulty==="hard") max=50;
 
   let a,b,displayA,displayB;
+
   if(op==="/"){
-    a=Math.floor(Math.random()*max)+1;
-    b=Math.floor(Math.random()*max)+1;
-    displayA=a*b; displayB=a; correctAnswer=b;
-  }else{
-    a=Math.floor(Math.random()*max)+1; b=Math.floor(Math.random()*max)+1;
+    // Egész osztás: (a*b) ÷ a = b
+    a = Math.floor(Math.random()*max)+1;   // osztó
+    b = Math.floor(Math.random()*max)+1;   // hányados
+    displayA = a*b;                        // osztandó
+    displayB = a;                          // osztó
+    correctAnswer = b;
+  } else if(op==="*"){
+    const isMulModeActive = (document.getElementById("operation").value==="*");
+    const mulMode = document.getElementById("mulMode").value;
+    const fixedN = parseInt(document.getElementById("mulTable").value)||10;
+
+    if(isMulModeActive && mulMode==="fixed"){
+      // Kiválasztott tábla: egyik tényező fix (a sorrendet véletlenítjük a változatosság kedvéért)
+      const rand = Math.floor(Math.random()*max)+1;
+      if(Math.random()<0.5){ a = fixedN; b = rand; } else { a = rand; b = fixedN; }
+    } else {
+      // Random szorzás
+      a = Math.floor(Math.random()*max)+1;
+      b = Math.floor(Math.random()*max)+1;
+    }
+    correctAnswer = a*b;
+    displayA = a; displayB = b;
+  } else {
+    // + vagy -
+    a = Math.floor(Math.random()*max)+1;
+    b = Math.floor(Math.random()*max)+1;
     if(op==="-"){ while(b>a) b=Math.floor(Math.random()*max)+1; }
-    correctAnswer = op==="+"?a+b:op==="-"?a-b:a*b;
-    displayA=a; displayB=b;
+    correctAnswer = op==="+"?a+b:a-b;
+    displayA = a; displayB = b;
   }
 
   document.getElementById("question").textContent=`${questionIndex+1}. Mennyi ${displayA} ${op} ${displayB}?`;
@@ -383,18 +388,23 @@ function endGame(){
   html+="<table><tr><th>#</th><th>Feladat</th><th>Helyes válasz</th><th>Te válaszod</th><th>Értékelés</th></tr>";
   answers.forEach((q,idx)=>{
     const mark = q.helyes ? `<span class='ok'>✅</span>` : `<span class='bad'>❌</span>`;
-    html+=`<tr><td>${idx+1}</td><td>${q.a} ${q.op} ${q.b}</td><td>${q.correct}</td><td>${q.user}</td><td>${mark}</td></tr>`;
+    html+=`<tr>
+      <td>${idx+1}</td>
+      <td>${q.a} ${q.op} ${q.b}</td>
+      <td>${q.correct}</td>
+      <td>${q.user}</td>
+      <td>${mark}</td>
+    </tr>`;
   });
   html+="</table>";
   document.getElementById("summary").innerHTML=html;
   document.getElementById("question").textContent="Játék vége!";
 }
 
-// PWA: regisztráció
+// PWA regisztráció
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js', {scope: './'})
-      .catch(err => console.log('SW reg error:', err));
+    navigator.serviceWorker.register('./sw.js', {scope:'./'}).catch(err => console.log('SW reg error:', err));
   });
 }
 
