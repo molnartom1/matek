@@ -2,11 +2,15 @@
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Bendegúz Matek Játéka</title>
   <meta name="theme-color" content="#4CAF50">
   <style>
+    /* Stabil szélességek, ne lógjon ki semmi */
+    *, *::before, *::after { box-sizing: border-box; }
+
     /* --- ALAP (DESKTOP) STÍLUS --- */
+    html, body { height: 100%; }
     body {
       font-family: Arial, sans-serif;
       background: url('https://picsum.photos/1200/800?blur=3') no-repeat center center fixed;
@@ -16,6 +20,8 @@
       align-items: center;
       min-height: 100vh;
       margin: 0;
+      overflow-x: hidden; /* biztos, ami biztos */
+      -webkit-text-size-adjust: 100%;
     }
     .container {
       display: flex;
@@ -32,14 +38,13 @@
       .container{ flex-direction: row; align-items: flex-start; }
     }
 
-    /* Bal oldal (játék) – nagyobb */
+    /* Bal oldal (játék) nagyobb */
     .game{
       flex: 3;
       text-align: center;
       padding: 10px;
     }
-
-    /* Jobb oldal (szorzótábla + átváltás) – kisebb, egymás alatt */
+    /* Jobb oszlop */
     .sidebar{
       flex: 1;
       display: flex;
@@ -60,14 +65,23 @@
     .question{ font-size:22px; margin:15px 0; font-weight:bold; color:#333; }
     #emoji { font-size:40px; animation:bounce 1s infinite; }
     @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
-    input,select{ font-size:18px; padding:6px; text-align:center; margin:5px; border-radius:6px; border:1px solid #ccc; width:80%; max-width:240px; }
-    button{ font-size:18px; padding:10px; margin:5px; border:none; border-radius:8px; cursor:pointer; transition:0.3s; width:80%; max-width:250px; }
+    input,select{
+      font-size:18px; padding:6px; text-align:center; margin:5px;
+      border-radius:6px; border:1px solid #ccc; width:80%; max-width:240px;
+    }
+    button{
+      font-size:18px; padding:10px; margin:5px; border:none; border-radius:8px;
+      cursor:pointer; transition:0.3s; width:80%; max-width:250px;
+    }
     button:hover{ transform:scale(1.05); }
     #startBtn{ background-color:#4CAF50; color:white; }
     #answerBtn{ background-color:#2196F3; color:white; }
     #timer{ font-size:18px; margin:10px; color:#444; }
     #result{ font-size:20px; margin-top:10px; font-weight:bold; }
-    #progressBarContainer{ width:80%; background:#ddd; border-radius:10px; margin:10px auto; height:20px; }
+    #progressBarContainer{
+      width:80%; background:#ddd; border-radius:10px; margin:10px auto; height:20px;
+      overflow:hidden;
+    }
     #progressBar{ height:20px; background:#4CAF50; width:0%; border-radius:10px; transition: width .2s ease; }
     table{ width:100%; border-collapse:collapse; margin-top:10px; font-size:14px; }
     th,td{ padding:4px; text-align:center; border:1px solid #bbb; }
@@ -78,78 +92,54 @@
 
     /* --- Űrmérték átváltás: soronként, egymás alatt --- */
     .conv-field{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin: 8px 0;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; margin: 8px 0;
     }
-    .conv-field label{
-      flex: 0 0 auto;
-      font-size: 15px;
-      color: #333;
-    }
+    .conv-field label{ flex: 0 0 auto; font-size: 15px; color: #333; }
     .conv-field .conv-input-wrap{
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex: 1;
-      justify-content: flex-end;
+      display: flex; align-items: center; gap: 6px; flex: 1; justify-content: flex-end;
     }
-    .conv-field input{
-      width: 120px;
-      max-width: 100%;
-      margin: 0;
-    }
-    .conv-field .unit{
-      min-width: 1.5em;
-      text-align: left;
-      color:#555;
-    }
+    .conv-field input{ width: 120px; max-width: 100%; margin: 0; }
+    .conv-field .unit{ min-width: 1.5em; text-align: left; color:#555; }
 
-    /* --- MOBIL STÍLUS --- */
+    /* Confetti canvas overlay (ne blokkoljon) */
+    #confettiCanvas{ position:fixed; inset:0; width:100%; height:100%; pointer-events:none; }
+
+    /* --- MOBIL STÍLUS: nincs háttér, nincs felső margó, nincs oldalirányú csúszkálás --- */
     @media (max-width: 767px){
+      html, body { overflow-x: hidden; }
       body {
-        background: #fff; /* nincs háttérkép mobilon */
-        display: block;
+        background: #fff;          /* nincs háttérkép */
+        display: block;            /* ne flexeljünk mobilon */
         min-height: auto;
+        margin: 0;
+        padding: 0;               /* ne legyen felső margó/ padding */
       }
       .container {
-        box-shadow: none;
-        border-radius: 0;
-        background: #fff;
-        padding: 5px;
-        width: 100%;
-        max-width: none;
-        gap: 12px;
+        box-shadow: none; border-radius: 0; background: #fff;
+        padding: 8px; width: 100%; max-width: none; gap: 12px; margin: 0 auto;
       }
-      h1 { font-size: 1.3em; margin: 4px 0; }
+      h1 { font-size: 1.3em; margin: 0 0 6px 0; } /* felső margó = 0 */
       .question { font-size: 20px; }
       input, select, button { width: 100%; max-width: none; font-size: 16px; }
-      #progressBarContainer { width: 100%; }
-      .multiplication, .conversion {
-        margin: 10px 0;
-        box-shadow: none;
-        background: #f9f9f9;
-      }
-      /* Táblázatok vízszintesen görgethetők */
+      #progressBarContainer { width: 100%; margin: 10px 0; }
+
+      /* Táblázatok saját belső görgetést kapnak, az oldal nem szélesedik */
       .multiplication table,
       #summary table {
         display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-        border: none;
-      }
-      /* Űrmérték mezők mobilon is egymás alatt, balra cím, jobbra input */
-      .conv-field{
-        gap:10px;
-      }
-      .conv-field input{
         width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
       }
-      .conv-field .conv-input-wrap{
-        justify-content: flex-start;
-      }
+      .multiplication th, .multiplication td,
+      #summary th, #summary td { white-space: nowrap; }
+
+      /* Konverziós mezők: teljes szélesség, nem lóg ki */
+      .conv-field { gap:10px; }
+      .conv-field .conv-input-wrap{ justify-content: flex-start; }
+      .conv-field input{ width: 100%; }
     }
   </style>
 </head>
@@ -217,7 +207,6 @@
       <div class="conversion">
         <h2>📐 Űrmérték átváltás</h2>
 
-        <!-- EGYES MEZŐK EGYMÁS ALATT -->
         <div class="conv-field">
           <label for="liters">Liter</label>
           <div class="conv-input-wrap">
@@ -247,7 +236,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 <script>
-/* Működés: változatlan */
 let correctAnswer=0,timeLimit=0,timerInterval,questionIndex=0,score=0,answers=[],currentQuestion=null,totalQuestions=10,playerName="Játékos";
 
 function toggleCustomCount(){
@@ -271,16 +259,11 @@ function updateProgress(){
   document.getElementById("progressBar").style.width = pct + "%";
 }
 
-function getHighScoreKey(){
-  return "highScore_" + (playerName || "Játékos");
-}
+function getHighScoreKey(){ return "highScore_" + (playerName || "Játékos"); }
 
 function updateHighScore(){
   let best=Number(localStorage.getItem(getHighScoreKey()))||0;
-  if(score>best){
-    best=score;
-    localStorage.setItem(getHighScoreKey(),best);
-  }
+  if(score>best){ best=score; localStorage.setItem(getHighScoreKey(),best); }
   document.getElementById("highScore").textContent="🏅 Legjobb pontszámod ("+playerName+"): "+best+"/"+totalQuestions;
 }
 
@@ -308,15 +291,12 @@ function convertVolume(c){
 function startGame(){
   const nameInput = (document.getElementById("playerName").value || "").trim();
   playerName = nameInput.length ? nameInput : "Játékos";
-
   const setVal = document.getElementById("questionSet").value;
   totalQuestions = (setVal==="custom")
       ? Math.max(1, Math.min(100, parseInt(document.getElementById("customCount").value)||10))
       : parseInt(setVal);
 
-  questionIndex=0;
-  score=0;
-  answers=[];
+  questionIndex=0; score=0; answers=[];
   document.getElementById("summary").innerHTML="";
   document.getElementById("badge").innerHTML="";
   document.getElementById("emoji").textContent="";
@@ -335,17 +315,15 @@ function newQuestion(){
   let max=10; if(difficulty==="medium") max=20; if(difficulty==="hard") max=50;
 
   let a,b,displayA,displayB;
-
   if(op==="/"){
-    a = Math.floor(Math.random()*max)+1;
-    b = Math.floor(Math.random()*max)+1;
-    displayA = a*b; displayB = a; correctAnswer = b;
-  } else {
-    a = Math.floor(Math.random()*max)+1;
-    b = Math.floor(Math.random()*max)+1;
+    a=Math.floor(Math.random()*max)+1;
+    b=Math.floor(Math.random()*max)+1;
+    displayA=a*b; displayB=a; correctAnswer=b;
+  }else{
+    a=Math.floor(Math.random()*max)+1; b=Math.floor(Math.random()*max)+1;
     if(op==="-"){ while(b>a) b=Math.floor(Math.random()*max)+1; }
     correctAnswer = op==="+"?a+b:op==="-"?a-b:a*b;
-    displayA = a; displayB = b;
+    displayA=a; displayB=b;
   }
 
   document.getElementById("question").textContent=`${questionIndex+1}. Mennyi ${displayA} ${op} ${displayB}?`;
@@ -383,9 +361,7 @@ function checkAnswer(){
     ];
     document.getElementById("result").textContent=praises[Math.floor(Math.random()*praises.length)];
     document.getElementById("emoji").textContent="✅";
-    playSound(true);
-    showConfetti();
-    score++;
+    playSound(true); showConfetti(); score++;
   } else {
     document.getElementById("result").textContent=`Ez most nem sikerült, ${playerName}. Helyes válasz: ${currentQuestion.correct}`;
     document.getElementById("emoji").textContent="❌";
@@ -395,12 +371,12 @@ function checkAnswer(){
   updateProgress();
   clearInterval(timerInterval);
   answers.push({...currentQuestion,user:valasz, helyes});
-  setTimeout(newQuestion,1200);
+  setTimeout(newQuestion,1100);
 }
 
 function endGame(){
   let html=`<h2>🎉 Játék vége! 🎉</h2><p><strong>Pontszámod:</strong> ${score}/${totalQuestions}</p>`;
-  if(score===totalQuestions){ document.getElementById("badge").innerHTML="🏆 Matek bajnok!"; }
+  if(score===totalQuestions)document.getElementById("badge").innerHTML="🏆 Matek bajnok!";
   updateHighScore();
   html+="<table><tr><th>#</th><th>Feladat</th><th>Helyes válasz</th><th>Te válaszod</th><th>Értékelés</th></tr>";
   answers.forEach((q,idx)=>{
