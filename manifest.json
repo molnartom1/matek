@@ -1,5 +1,5 @@
 {
-  "name": "Bendegúz Matek Játéka",
+  "name": "Matek Játéka",
   "short_name": "Matek Játék",
   "description": "Számtan gyakorló (összeadás, kivonás, szorzás, osztás) offline is, telepíthető PWA-ként.",
   "start_url": "index.html",
